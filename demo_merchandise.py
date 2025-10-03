@@ -7,12 +7,12 @@ import base64
 import re
 
 # --- Constants & Configuration ---
-LOGO_PATH = "/root/health_week_demo/hcw_demo/deep_logo.png"
-BANNER_IMAGE_PATH = "/root/health_week_demo/hcw_demo/hcw_banner.png"
+LOGO_PATH = "/home/bigdata/health_care_week/deep_logo.png"
+BANNER_IMAGE_PATH = "/home/bigdata/health_care_week/hcw_banner.png"
 ### --- MODIFIED --- ###
 # Corrected the file path to use forward slashes.
-WELCOME_BANNER_PATH = "/root/health_week_demo/hcw_demo/prize_banner.png"
-QUIZ_FILE_PATH = "/root/health_week_demo/hcw_demo/test_bank_200.jsonl"
+WELCOME_BANNER_PATH = "/home/bigdata/health_care_week/prize_banner.png"
+QUIZ_FILE_PATH = "/home/bigdata/health_care_week/test_bank_200.jsonl"
 CHOICES = ["A", "B", "C", "D"]
 NUM_QUESTIONS = 10
 
