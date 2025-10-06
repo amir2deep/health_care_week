@@ -4,7 +4,7 @@ import random
 import os
 import base64
 import re
-from datetime import datetime # --- MODIFIED: Imported datetime ---
+from datetime import datetime
 
 # --- Constants & Configuration ---
 # --- Constants & Configuration ---
@@ -24,7 +24,7 @@ COLOR_BLUE_MID_2 = "#007dc5"
 COLOR_BLUE_DARK = "#006cb7"
 COLOR_BLUE_DARKEST = "#005baa"
 
-# --- Terms and Conditions Text ---
+# --- MODIFIED: Terms and Conditions Text Updated ---
 TERMS_AND_CONDITIONS_TEXT = """
 ## Terms and Conditions for the AI Quiz Challenge
 
@@ -42,7 +42,7 @@ To qualify for the prize draw, participants must at least **achieve a draw with 
 
 In addition to achieving a draw, participants must complete the registration form accurately.
 
-###### **3. Prize:** A total of **20 HP 435 mice** will be given away. The prize is non-transferable, with no cash alternative. Each participant is capped at winning a maximum of **one mouse** (or one primary prize) across the entire challenge. The winner(s) will be drawn randomly from all eligible raffle entries after the event concludes. **Winners will be contacted via email and SMS, and by participating in the draw, you consent to being contacted through these channels for prize fulfillment.**
+###### **3. Prize:** A total of **20 HP 435 mice** will be given away. The prize is non-transferable, with no cash alternative. Each participant is capped at winning a maximum of **one mouse** (or one primary prize) across the entire challenge. The winner(s) will be drawn randomly from all eligible raffle entries after the event concludes. **Winners will be contacted via email, and by participating in the draw, you consent to being contacted through this channel for prize fulfillment.**
 
 ###### **4. Data Privacy:** By participating, you agree to the collection of your personal data for quiz administration, winner notification, and **marketing outreach/contact purposes.**
 
@@ -82,24 +82,23 @@ def load_questions_from_jsonl(file_path=QUIZ_FILE_PATH):
 
 full_question_bank = load_questions_from_jsonl(QUIZ_FILE_PATH)
 
-# --- MODIFIED: Function updated to include timestamp and phone number ---
-def save_results_to_csv(name, email, phone, company, job_title, user_score, ai_score, ai_model):
+# --- MODIFIED: Function updated to remove phone number ---
+def save_results_to_csv(name, email, company, job_title, user_score, ai_score, ai_model):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    new_data = pd.DataFrame([[timestamp, name, email, phone, company, job_title, user_score, ai_score, ai_model]],
-                            columns=['Timestamp', 'Name', 'Email', 'Phone', 'Company', 'JobTitle', 'UserScore', 'AIScore', 'AIModel'])
+    new_data = pd.DataFrame([[timestamp, name, email, company, job_title, user_score, ai_score, ai_model]],
+                            columns=['Timestamp', 'Name', 'Email', 'Company', 'JobTitle', 'UserScore', 'AIScore', 'AIModel'])
     new_data.to_csv('quiz_results.csv', mode='a', header=not os.path.isfile('quiz_results.csv'), index=False)
 
 # --- Gradio Core Functions ---
 def show_login_form():
     return {welcome_row: gr.update(visible=False), login_row: gr.update(visible=True)}
 
-# --- MODIFIED: Function updated to handle phone number ---
-def start_quiz(name, email, phone, company, job_title, ai_model, terms_agreed):
+# --- MODIFIED: Function updated to remove phone number ---
+def start_quiz(name, email, company, job_title, ai_model, terms_agreed):
     error_messages = []
     if not name.strip(): error_messages.append("Full Name is required.")
     if not email.strip(): error_messages.append("Email is required.")
     elif not is_valid_email(email): error_messages.append("Please enter a valid email address.")
-    if not phone.strip(): error_messages.append("Phone Number is required.") # Validation for phone
     if not company.strip(): error_messages.append("Company Name is required.")
     if not job_title.strip(): error_messages.append("Job Title is required.")
     if not terms_agreed: error_messages.append("You must agree to the terms and conditions.")
@@ -140,7 +139,7 @@ def start_quiz(name, email, phone, company, job_title, ai_model, terms_agreed):
         choice_a_button: gr.update(value=options[0], visible=True), choice_b_button: gr.update(value=options[1], visible=True),
         choice_c_button: gr.update(value=options[2], visible=True), choice_d_button: gr.update(value=options[3], visible=True),
         question_state: quiz_questions, user_score_state: 0, ai_score_state: 0, q_index_state: 0,
-        user_name_state: name, user_email_state: email, user_phone_state: phone, # Storing phone in state
+        user_name_state: name, user_email_state: email, 
         company_name_state: company, job_title_state: job_title,
         ai_model_state: ai_model,
         user_score_display: gr.update(value='<div class="score-card" id="user-score-card">Human<br><span class="score-value">0</span></div>'),
@@ -149,8 +148,8 @@ def start_quiz(name, email, phone, company, job_title, ai_model, terms_agreed):
         main_banner_row: gr.update(visible=True),
     }
 
-# --- MODIFIED: Function updated to handle phone number ---
-def process_answer(user_answer, q_index, user_score, ai_score, questions, name, email, phone, company, job_title, ai_model):
+# --- MODIFIED: Function updated to remove phone number ---
+def process_answer(user_answer, q_index, user_score, ai_score, questions, name, email, company, job_title, ai_model):
     current_question, num_questions = questions[q_index], len(questions)
     options = [current_question['opa'], current_question['opb'], current_question['opc'], current_question['opd']]
     correct_answer_index, ai_answer_index = current_question['cop'], current_question.get(ai_model, 0)
@@ -173,7 +172,7 @@ def process_answer(user_answer, q_index, user_score, ai_score, questions, name, 
     ai_score_html = f'<div class="score-card" id="ai-score-card">AI<br><span class="score-value">{ai_score}</span></div>'
 
     if q_index >= num_questions:
-        save_results_to_csv(name, email, phone, company, job_title, user_score, ai_score, ai_model) # Pass phone to save
+        save_results_to_csv(name, email, company, job_title, user_score, ai_score, ai_model) # Removed phone from save
         winner_text = f"🤝 It's a draw! {user_score} to {ai_score}."
         if user_score > ai_score: winner_text = f"🎉 Congratulations, {name}! You won {user_score} to {ai_score}."
         elif ai_score > user_score: winner_text = f"🤖 The AI won {ai_score} to {user_score}. Better luck next time!"
@@ -306,10 +305,10 @@ h1, .markdown h1 {{ text-align: center; color: {COLOR_BLUE_DARK}; font-weight: 8
 """
 
 with gr.Blocks(css=custom_css, title="AI Quiz Challenge") as demo:
-    # --- MODIFIED: Added user_phone_state ---
-    state_vars = [gr.State(v) for v in [[], 0, 0, 0, "", "", "", "", "", "gpt-4.1-nano"]]
+    # --- MODIFIED: Removed user_phone_state ---
+    state_vars = [gr.State(v) for v in [[], 0, 0, 0, "", "", "", "", "gpt-4.1-nano"]]
     question_state, user_score_state, ai_score_state, q_index_state, \
-    user_name_state, user_email_state, user_phone_state, company_name_state, \
+    user_name_state, user_email_state, company_name_state, \
     job_title_state, ai_model_state = state_vars
 
     gr.HTML(LOGO_HTML)
@@ -328,10 +327,9 @@ with gr.Blocks(css=custom_css, title="AI Quiz Challenge") as demo:
 
     with gr.Row(visible=False, variant="panel") as login_row:
         with gr.Column(scale=1):
-            # --- MODIFIED: Changed label and added phone_box ---
+            # --- MODIFIED: Removed phone_box ---
             name_box = gr.Textbox(label="Full Name", placeholder="Enter your full name...")
             email_box = gr.Textbox(label="Email", placeholder="Enter your work email...")
-            phone_box = gr.Textbox(label="Phone Number", placeholder="Enter your phone number...")
             company_box = gr.Textbox(label="Company Name", placeholder="Enter your company name...")
             job_title_box = gr.Textbox(label="Job Title", placeholder="Enter your job title...")
             
@@ -374,16 +372,16 @@ with gr.Blocks(css=custom_css, title="AI Quiz Challenge") as demo:
     view_tc_button.click(lambda: gr.update(visible=True), outputs=[tc_popup_row])
     close_tc_button.click(lambda: gr.update(visible=False), outputs=[tc_popup_row])
 
-    # --- MODIFIED: Added phone_box to inputs ---
-    start_inputs = [name_box, email_box, phone_box, company_box, job_title_box, ai_model_dropdown, terms_checkbox]
+    # --- MODIFIED: Removed phone_box from inputs ---
+    start_inputs = [name_box, email_box, company_box, job_title_box, ai_model_dropdown, terms_checkbox]
     start_outputs = [login_row, score_display_row, start_error_msg, quiz_row, question_title, question_display,
                      choice_a_button, choice_b_button, choice_c_button, choice_d_button,
                      *state_vars, user_score_display, ai_score_display, reset_button, main_banner_row]
     start_button.click(fn=start_quiz, inputs=start_inputs, outputs=start_outputs)
 
-    # --- MODIFIED: Added user_phone_state to inputs ---
+    # --- MODIFIED: Removed user_phone_state from inputs ---
     answer_inputs = [q_index_state, user_score_state, ai_score_state, question_state, user_name_state,
-                     user_email_state, user_phone_state, company_name_state, job_title_state, ai_model_state]
+                     user_email_state, company_name_state, job_title_state, ai_model_state]
     answer_outputs = [q_index_state, user_score_state, ai_score_state, question_title, question_display,
                       choice_a_button, choice_b_button, choice_c_button, choice_d_button, feedback_row,
                       feedback_text, user_score_display, ai_score_display, quiz_row, end_row, final_result_text, reset_button]
@@ -391,11 +389,11 @@ with gr.Blocks(css=custom_css, title="AI Quiz Challenge") as demo:
     for btn in [choice_a_button, choice_b_button, choice_c_button, choice_d_button]:
         btn.click(fn=process_answer, inputs=[btn] + answer_inputs, outputs=answer_outputs)
 
-    # --- MODIFIED: Updated reset logic map to include new fields ---
+    # --- MODIFIED: Updated reset logic map to remove phone fields ---
     reset_outputs_map = {
         welcome_row: gr.update(visible=True), login_row: gr.update(visible=False),
         score_display_row: gr.update(visible=False), name_box: gr.update(value=""), email_box: gr.update(value=""),
-        phone_box: gr.update(value=""), company_box: gr.update(value=""), job_title_box: gr.update(value=""), 
+        company_box: gr.update(value=""), job_title_box: gr.update(value=""), 
         ai_model_dropdown: gr.update(value="gpt-4.1-nano"),
         terms_checkbox: gr.update(value=False), start_error_msg: gr.update(value="", visible=False),
         quiz_row: gr.update(visible=False), feedback_row: gr.update(visible=False), end_row: gr.update(visible=False),
@@ -405,7 +403,7 @@ with gr.Blocks(css=custom_css, title="AI Quiz Challenge") as demo:
         choice_c_button: gr.update(visible=False), choice_d_button: gr.update(visible=False),
         feedback_text: gr.update(value=""), reset_button: gr.update(visible=False),
         q_index_state: 0, user_score_state: 0, ai_score_state: 0, question_state: [],
-        user_name_state: "", user_email_state: "", user_phone_state: "", company_name_state: "", job_title_state: "",
+        user_name_state: "", user_email_state: "", company_name_state: "", job_title_state: "",
         ai_model_state: "gpt-4.1-nano",
         main_banner_row: gr.update(visible=False)
     }
